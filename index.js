@@ -1,6 +1,22 @@
 import express from "express";
 import weatherRoute from "./routes/weather.js";
-import weather from "./controllers/weather.js";
+import redis from "redis";
+
+const redisClient = redis.createClient();
+
+(async () => {
+  redisClient.on("error", (err) => {
+    console.error("Redis client error", err);
+  });
+
+  redisClient.on("ready", () => {
+    console.log("Redis client started");
+  });
+
+  await redisClient.connect();
+
+  await redisClient.ping();
+})();
 
 const app = express();
 
@@ -12,3 +28,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is listening on PORT: ${PORT}...`);
 });
+
+export default redisClient;
